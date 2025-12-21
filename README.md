@@ -53,7 +53,7 @@ rnd-researchers/
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone git@github.com:DanielyanEduard/regression-rnd-researchers.git
 cd rnd-researchers
 ```
 
