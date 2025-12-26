@@ -7,9 +7,10 @@ from models import (
     evaluate_on_test_set,
     FEATURE_NAMES,
 )
+from econometric_tests import run_econometric_tests, print_test_results
 
 
-def main(run_eda: bool = True, min_year: int = 2019, max_year: int = 2023) -> None:
+def main(run_eda: bool = True, run_tests: bool = True, min_year: int = 2019, max_year: int = 2023) -> None:
     """
     Main training function using augmented dataset approach.
     
@@ -19,6 +20,7 @@ def main(run_eda: bool = True, min_year: int = 2019, max_year: int = 2023) -> No
     
     Args:
         run_eda: Whether to run EDA visualizations
+        run_tests: Whether to run econometric hypothesis tests
         min_year: Minimum year to include in dataset (default: 2019)
         max_year: Maximum year to include in dataset (default: 2023)
     """
@@ -110,6 +112,19 @@ def main(run_eda: bool = True, min_year: int = 2019, max_year: int = 2023) -> No
     print(f"  R-squared: {test_metrics.r2:.4f}")
     print(f"  MAE: {test_metrics.mae:.2f}")
     print(f"  MSE: {test_metrics.mse:.2f}")
+    
+    # Econometric hypothesis testing
+    if run_tests:
+        from models import build_features_and_target
+        
+        print(f"\n{'='*80}")
+        print("ECONOMETRIC HYPOTHESIS TESTING")
+        print(f"{'='*80}")
+        
+        # Run tests on full model (entire dataset)
+        X_full, y_full = build_features_and_target(merged_df)
+        test_results = run_econometric_tests(X_full, y_full, full_model, FEATURE_NAMES)
+        print_test_results(test_results)
     
     # Summary
     print(f"\n{'='*80}")

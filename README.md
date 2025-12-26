@@ -1,48 +1,62 @@
-# R&D Researchers - Augmented Dataset Regression Analysis
+# R&D Researchers - Econometric Analysis
 
-This project implements a structured Python pipeline for analyzing relationships between:
+This project implements a comprehensive econometric analysis of the relationship between research capacity (researchers per million people) and key economic, institutional, and policy factors using data from **[Our World in Data](https://ourworldindata.org/)**.
+
+## Overview
+
+The analysis uses an augmented panel dataset approach where each country contributes multiple observations across years (2019-2023), building a robust linear regression model with 301 observations from 87 countries.
+
+### Dependent Variable
 - **Researchers in R&D per million people**
-- **GDP per capita (PPP)**
-- **R&D expenditure as % of GDP**
-- **Public spending on education as % of GDP**
-- **Academic freedom index** ⭐ NEW
-- **Population** ⭐ NEW
-- **Post-Soviet country status** ⭐ NEW
 
-using datasets from **[Our World in Data](https://ourworldindata.org/)** and a **linear regression model** with an **augmented dataset approach (2019-2023)**.
-
-> **📊 Real-World Data:** This project uses authentic, curated datasets from Our World in Data rather than synthetic or artificially generated data. This ensures the analysis reflects actual global trends and patterns in research, development, and education spending.
-
-> **🎯 Data Augmentation:** The model uses an augmented dataset approach where each country contributes multiple observations across years (2019-2023), with features calculated relative to each year. This increases the effective dataset size and improves model robustness.
+### Independent Variables (6 predictors)
+1. **GDP per capita** (PPP, constant 2021 international $)
+2. **Mean R&D expenditure** (% of GDP, 5-year average)
+3. **Mean education spending** (% of GDP, 5-year average)
+4. **Academic freedom index** (0-1 scale)
+5. **Population**
+6. **Post-Soviet country** (binary indicator for 15 former Soviet states)
 
 ---
 
-## Table of Contents
-- [What's New](#whats-new)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Pipeline Overview](#pipeline-overview)
-- [Model Features](#model-features)
+## Key Findings
 
----
+### Model Performance
+- **R² = 0.8959** (explains 89.6% of variation)
+- **Adjusted R² = 0.8938**
+- **F-statistic = 421.92, p < 0.001** (highly significant)
+- **Test R² = 0.8760** (excellent out-of-sample performance)
+- **Test MAE = 576.86** researchers/million
 
-## What's New
+### Significant Predictors (p < 0.01)
 
-### Recent Enhancements (v3.0 - Augmented Dataset)
+| Variable | Coefficient | Std. Error | t-statistic | p-value | 95% CI |
+|----------|-------------|------------|-------------|---------|--------|
+| **Mean R&D Expenditure (% GDP)** | 1,828.84 | 60.90 | 30.03 | < 0.001 *** | [1,709.0, 1,948.7] |
+| **GDP per capita** | 0.0275 | 0.0022 | 12.47 | < 0.001 *** | [0.0231, 0.0318] |
+| **Population** | -0.00003 | 0.000005 | -6.50 | < 0.001 *** | [-0.00004, -0.00002] |
+| **Is Post-Soviet** | 526.06 | 128.91 | 4.08 | < 0.001 *** | [272.3, 779.8] |
 
-1. **✅ Augmented Dataset Approach**: Each country contributes multiple observations (2019-2023), increasing dataset size from ~65 to 301 observations
-2. **✅ Dynamic Feature Calculation**: Features computed relative to each observation's year X (e.g., R&D spending in (X-4) to X)
-3. **✅ Improved Model Performance**: Test R² = 0.8760, MAE = 576.86 researchers/million
-4. **✅ Global Visualizations**: All visualizations show overall patterns across years, not year-specific analysis
-5. **✅ Added Academic Freedom Index**: Captures institutional quality and research environment
-6. **✅ Added Population Feature**: Controls for country size effects  
-7. **✅ Added Post-Soviet Flag**: Binary indicator for 15 post-Soviet countries
+### Non-Significant Predictors
 
-**Dataset**: 301 observations from 87 countries across 2019-2023 with data augmentation.
+| Variable | Coefficient | t-statistic | p-value |
+|----------|-------------|-------------|---------|
+| Academic Freedom Index | 250.57 | 1.42 | 0.156 |
+| Mean Education Spending (% GDP) | -11.72 | -0.30 | 0.768 |
 
-See [AUGMENTED_APPROACH.md](AUGMENTED_APPROACH.md) for details on the augmented dataset approach and [GLOBAL_VISUALIZATIONS.md](GLOBAL_VISUALIZATIONS.md) for visualization details.
+### Interpretation
+
+1. **R&D Investment is Dominant**: Every 1% increase in R&D expenditure → +1,829 researchers/million (strongest effect)
+
+2. **Economic Development Matters**: Every $1,000 increase in GDP per capita → +27.5 researchers/million
+
+3. **Population Effect**: Larger countries have proportionally fewer researchers per capita (coordination/scaling challenges)
+
+4. **Post-Soviet Legacy**: Former Soviet countries maintain +526 researchers/million advantage (persistent scientific culture)
+
+5. **Education Spending Ineffective**: General education spending shows no significant relationship (targeted R&D investment matters more)
+
+6. **Academic Freedom**: Not statistically significant (may work through indirect channels or be collinear with development)
 
 ---
 
@@ -50,274 +64,204 @@ See [AUGMENTED_APPROACH.md](AUGMENTED_APPROACH.md) for details on the augmented 
 
 ```
 rnd-researchers/
-├── .env                     # Configuration with dataset URLs (optional)
-├── .gitignore              # Git ignore rules
 ├── requirements.txt         # Python dependencies
-├── config.py               # Configuration and environment variable loading
-├── data_loader.py          # Functions to download/load 5 datasets from OWID
-├── data_prep.py            # Data filtering, aggregation, merging + post-Soviet flag
-├── eda.py                  # EDA and visualization (10+ plots)
-├── models.py               # Linear regression modeling and evaluation
-├── train_regression.py     # Main script - runs multi-year training pipeline
-├── figures/                # Generated plots (15+ visualizations)
-├── CHANGES_SUMMARY.md      # Detailed documentation of all changes
-├── FEATURE_COMPARISON.md   # Before/after feature comparison
-├── VISUALIZATIONS.md       # Complete visualization guide
+├── config.py               # Configuration and environment variables
+├── data_loader.py          # Load datasets from Our World in Data
+├── data_prep.py            # Data preprocessing and feature engineering
+├── eda_augmented.py        # Exploratory data analysis
+├── models.py               # Linear regression modeling
+├── econometric_tests.py    # Econometric hypothesis testing (t-tests, F-test)
+├── train_regression.py     # Main training pipeline
+├── run_tests.py            # Quick script for hypothesis tests only
+├── figures/                # Generated visualizations
 └── README.md               # This file
 ```
 
 ---
 
-## Prerequisites
-
-- **Python 3.7+**
-- **pip** (Python package installer)
-- **Git** (to clone the repository)
-
----
-
 ## Installation
 
-### 1. Clone the repository
+### Prerequisites
+- Python 3.7+
+- pip (Python package installer)
+
+### Setup
 
 ```bash
+# Clone the repository
 git clone git@github.com:DanielyanEduard/regression-rnd-researchers.git
 cd rnd-researchers
-```
 
-### 2. Create and activate a virtual environment
-
-**Linux/macOS:**
-```bash
+# Create and activate virtual environment
 python3 -m venv .venv
-source .venv/bin/activate
-```
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-**Windows:**
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-### 3. Install dependencies
-
-**After activating the virtual environment:**
-
-```bash
+# Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-> **Note for macOS users:** If `pip` doesn't work, use `pip3` instead:
-> ```bash
-> pip3 install --upgrade pip
-> pip3 install -r requirements.txt
-> ```
-
-The project includes default dataset URLs in `config.py`. You can optionally create a `.env` file to override these URLs.
-
-**Optional .env configuration:**
-```bash
-RESEARCHERS_CSV_URL=<custom-url>
-SPENDING_CSV_URL=<custom-url>
-EDUCATION_CSV_URL=<custom-url>
-# Academic Freedom and Population URLs have defaults
 ```
 
 ---
 
 ## Usage
 
-### Run the complete pipeline
-
-With the virtual environment activated and dependencies installed:
+### Run Complete Analysis (with EDA and hypothesis tests)
 
 ```bash
-python train_regression.py
+python3 train_regression.py
 ```
 
-> **Note for macOS users:** If `python` doesn't work, use `python3`:
-> ```bash
-> python3 train_regression.py
-> ```
+This will:
+1. Download 5 datasets from Our World in Data
+2. Build augmented panel dataset (2019-2023)
+3. Generate exploratory visualizations
+4. Train linear regression model
+5. Run econometric hypothesis tests (t-tests, F-test)
+6. Evaluate on train/test split (80/20)
 
-This script will:
-1. **Load 5 datasets** from Our World in Data:
-   - Researchers in R&D per million people
-   - R&D expenditure (% of GDP)
-   - Public spending on education (% of GDP)
-   - Academic freedom index ⭐ NEW
-   - Population ⭐ NEW
-2. **Build augmented dataset** for years 2019-2023:
-   - For each country-year combination with researcher data
-   - Calculate features relative to that year X:
-     - GDP per capita in year X
-     - Mean R&D spending in (X-4) to X
-     - Mean education spending in (X-4) to X
-     - Academic freedom in year X
-     - Population in year X
-     - Post-Soviet flag (constant)
-3. **Generate global EDA visualizations** (4 comprehensive plots saved to `figures/`)
-   - Overall distributions across all years
-   - Global feature relationships
-   - Correlation analysis
-   - Top countries ranking
-4. **Train single linear regression model** on augmented dataset (301 observations)
-5. **Perform K-fold cross-validation** on training set
-6. **Evaluate on held-out test set** (80/20 split)
-7. **Compare performance across years** and identify best model
-8. **Print detailed performance metrics** (R², MAE, MSE) for each year
+### Run Hypothesis Tests Only (faster)
 
-### Expected output
+```bash
+python3 run_tests.py
+```
+
+Skips EDA and focuses on model training and econometric testing.
+
+---
+
+## Econometric Hypothesis Testing
+
+The project implements two essential econometric tests:
+
+### 1. t-tests for Individual Coefficients
+
+**Hypotheses:**
+- H₀: β_i = 0 (variable has no effect)
+- H₁: β_i ≠ 0 (variable has significant effect)
+
+**Results:**
+- 4 out of 6 variables are highly significant (p < 0.01)
+- R&D expenditure has the strongest effect (t = 30.03)
+
+### 2. F-test for Overall Model
+
+**Hypotheses:**
+- H₀: All coefficients are zero (model has no explanatory power)
+- H₁: At least one coefficient is non-zero
+
+**Result:**
+- F = 421.92, p < 0.001
+- Model is highly significant
+
+### Example Output
 
 ```
-Loading datasets...
-✓ Datasets loaded successfully!
+====================================================================================================
+ECONOMETRIC HYPOTHESIS TESTING RESULTS
+====================================================================================================
 
-================================================================================
-TRAINING MODEL FOR YEAR 2022
-================================================================================
-Merged dataset shape: (XX, 7)
+📊 MODEL SUMMARY
+   Observations: 301
+   Features: 6
+   R²: 0.8959
+   Adjusted R²: 0.8938
 
-Running EDA for 2022 and saving figures to the figures/ directory...
-Generating distribution analysis for researchers...
-Generating top countries analysis...
-[... EDA output ...]
+====================================================================================================
+1. COEFFICIENT SIGNIFICANCE TESTS (t-tests)
+====================================================================================================
+   H₀: β_i = 0 (coefficient has no effect)
+   H₁: β_i ≠ 0 (coefficient has significant effect)
 
-Full-data model (in-sample) for 2022:
-  Intercept: XXX.XX
-  Coefficients:
-    GDP per capita, PPP (constant 2021 international $): X.XXXX
-    Mean Research and development expenditure (% of GDP) (2018-2022): X.XXXX
-    Mean public spending on education (% of GDP) (2018-2022): X.XXXX
-    Academic freedom index (2022): X.XXXX
-    Population (2022): X.XXXX
-    Is Post-Soviet: X.XXXX
-  R-squared: 0.XXXX
-  MAE: XXX.XX
-  MSE: XXXXX.XX
+Feature                                                 Coeff    Std.Err     t-stat    p-value Sig.      
+----------------------------------------------------------------------------------------------------
+GDP per capita, PPP (constant 2021 international $)     0.0275     0.0022    12.4674     0.0000 ***       
+Mean R&D Expenditure (% GDP)                        1828.8427    60.8953    30.0326     0.0000 ***       
+Mean Education Spending (% GDP)                      -11.7196    39.6592    -0.2955     0.7678           
+Academic Freedom Index                               250.5698   176.1058     1.4228     0.1558           
+Population                                            -0.0000     0.0000    -6.5028     0.0000 ***       
+Is Post-Soviet                                       526.0573   128.9126     4.0807     0.0001 ***       
 
-[... Similar output for 2023 and 2024 ...]
+   Significance levels: *** p<0.01, ** p<0.05
 
-================================================================================
-SUMMARY COMPARISON ACROSS YEARS
-================================================================================
-Year     Size     Full R²      CV R²        Test R²      Test MAE    
---------------------------------------------------------------------------------
-2022     XX       0.XXXX       0.XXXX       0.XXXX       XXX.XX
-2023     XX       0.XXXX       0.XXXX       0.XXXX       XXX.XX
-2024     XX       0.XXXX       0.XXXX       0.XXXX       XXX.XX
+====================================================================================================
+2. OVERALL MODEL SIGNIFICANCE (F-test)
+====================================================================================================
+   H₀: All coefficients are zero (model has no explanatory power)
+   H₁: At least one coefficient is non-zero
 
-================================================================================
-BEST MODEL: Year XXXX with Test R² = 0.XXXX
-================================================================================
+   F-statistic: 421.9196
+   p-value: 0.000000
+   df: (6, 294)
+   ✅ RESULT: Reject H₀ - Model is statistically significant (p < 0.05)
 ```
 
 ---
 
-## Pipeline Overview
+## Data Sources
 
-### 1. Data Loading (`data_loader.py`)
-- Downloads **5 CSV files** and their metadata from Our World in Data
-- **Uses real-world, verified data** to ensure authenticity (no synthetic datasets)
-- Uses the user-agent header specified in config
-- Datasets:
-  - Researchers in R&D per million people vs GDP per capita
-  - Research & Development expenditure (% of GDP)
-  - Public spending on education as share of GDP
-  - **Academic freedom index** ⭐ NEW
-  - **Population (with UN projections)** ⭐ NEW
+All datasets from [Our World in Data](https://ourworldindata.org/):
 
-### 2. Data Preparation (`data_prep.py`)
-- **Researcher data**: Extracts values for target year (2022/2023/2024) with GDP per capita
-- **R&D spending**: Calculates mean for (target_year - 4) to target_year
-- **Education spending**: Calculates mean for (target_year - 4) to target_year
-- **Academic freedom**: Extracts values for target year ⭐ NEW
-- **Population**: Extracts values for target year ⭐ NEW
-- **Post-Soviet flag**: Binary indicator for 15 post-Soviet countries ⭐ NEW
-- **Merges** all features into a single dataset by country/entity
+1. **Researchers in R&D** (per million people) with GDP per capita
+2. **R&D Expenditure** (% of GDP)
+3. **Public Education Spending** (% of GDP)
+4. **Academic Freedom Index** (V-Dem Institute)
+5. **Population** (with UN projections)
 
-### 3. Exploratory Data Analysis (`eda.py`)
-Generates **15+ visualizations** including:
-- Researcher distributions and top countries analysis
-- GDP, R&D spending, and education spending analysis
-- **Academic freedom analysis** ⭐ NEW
-- **Population analysis** ⭐ NEW
-- Correlation heatmaps (per year)
-- Regression relationships (6 plots including new features)
-- **Post-Soviet country comparisons** ⭐ NEW
+### Data Augmentation Approach
 
-See [VISUALIZATIONS.md](VISUALIZATIONS.md) for complete guide.
-
-### 4. Modeling (`models.py`)
-
-**Target variable:**
-- `Researchers in R&D (per million people) in [YEAR]`
-  - YEAR can be 2022, 2023, or 2024
-
-**Features (6 total):**
-1. GDP per capita, PPP (constant 2021 international $)
-2. Mean R&D expenditure (% of GDP) (YEAR-4 to YEAR)
-3. Mean public spending on education (% of GDP) (YEAR-4 to YEAR)
-4. **Academic freedom index (YEAR)** ⭐ NEW
-5. **Population (YEAR)** ⭐ NEW
-6. **Is Post-Soviet** ⭐ NEW
-
-**Model evaluation includes:**
-- Full dataset regression with coefficients and R² for each year
-- 80/20 train-test split
-- 5-fold cross-validation on training data
-- Final evaluation on held-out test set
-- **Comparison across years to select best model** ⭐ NEW
-- Metrics: R², Mean Absolute Error (MAE), Mean Squared Error (MSE)
+Instead of using a single year, the model leverages multiple years (2019-2023):
+- Each country can contribute up to 5 observations (one per year)
+- Features are calculated relative to each observation's year
+- Increases effective sample size from ~65 to 301
+- Improves model robustness and generalizability
 
 ---
 
-## Model Features
+## Technical Details
 
-### Current Features (6 features)
+### Feature Engineering
 
-| Feature | Type | Source | Description |
-|---------|------|--------|-------------|
-| GDP per capita | Continuous | OWID | Economic indicator (PPP, 2021 int'l $) |
-| R&D Expenditure | Continuous | OWID | Mean R&D spending (% of GDP, 5-year avg) |
-| Education Spending | Continuous | OWID | Mean education spending (% of GDP, 5-year avg) |
-| Academic Freedom ⭐ | Continuous | OWID | Academic freedom index (0-1 scale) |
-| Population ⭐ | Continuous | OWID | Country population |
-| Is Post-Soviet ⭐ | Binary | Custom | Post-Soviet country flag (0/1) |
+For each country-year observation (year X):
+- **GDP per capita**: Value in year X
+- **R&D spending**: Mean over (X-4) to X (5-year average)
+- **Education spending**: Mean over (X-4) to X (5-year average)
+- **Academic freedom**: Value in year X
+- **Population**: Value in year X
+- **Post-Soviet flag**: Time-invariant (binary)
+
+### Model Validation
+
+- **Train/Test Split**: 80/20 (240 train, 61 test)
+- **Metrics**: R², MAE, MSE
 
 ### Post-Soviet Countries (15 total)
-Russia, Ukraine, Belarus, Kazakhstan, Uzbekistan, Turkmenistan, Kyrgyzstan, Tajikistan, Georgia, Armenia, Azerbaijan, Moldova, Lithuania, Latvia, Estonia
 
-### Model Improvements Over Previous Version
-- **+50% more features** (4 → 6 features)
-- **Removed autocorrelation** by eliminating mean researchers feature
-- **Better institutional representation** via academic freedom index
-- **Country size control** via population feature
-- **Historical context** via post-Soviet flag
-- **Multi-year comparison** to select optimal target year
+Russia, Ukraine, Belarus, Kazakhstan, Uzbekistan, Turkmenistan, Kyrgyzstan, Tajikistan, Georgia, Armenia, Azerbaijan, Moldova, Lithuania, Latvia, Estonia
 
 ---
 
-## Project Features
+## Dependencies
 
-✅ **Real-world data** – Uses authentic datasets from Our World in Data (not synthetic)  
-✅ **Multi-year support** – Train and compare models for 2022, 2023, 2024  
-✅ **Enhanced features** – 6 features including academic freedom, population, post-Soviet status  
-✅ Modular, maintainable code structure  
-✅ Environment-based configuration  
-✅ Automated data loading from remote sources  
-✅ **Comprehensive EDA** – 15+ visualizations  
-✅ Rigorous model validation (K-fold CV + test set)  
-✅ Reproducible results with fixed random seeds  
-✅ Production-ready Python project structure  
-✅ **Detailed documentation** – Multiple MD files with complete guides
+```
+numpy>=1.24.0
+pandas>=2.0.0
+requests>=2.31.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scikit-learn>=1.3.0
+python-dotenv>=1.0.0
+certifi>=2023.7.22
+scipy>=1.9.0
+statsmodels>=0.14.0
+```
 
 ---
 
 ## Contributors
 
-- [@DanielyanEduard](https://github.com/DanielyanEduard)
+- [@albpiliposyan](https://github.com/albpiliposyan)
+- [@ManeMkh](https://github.com/ManeMkh)
+
 
 ---
 
@@ -327,8 +271,7 @@ This project is open source and available for educational purposes.
 
 ---
 
-## Contributing
 
-Feel free to open issues or submit pull requests for improvements!
+## Contact
 
-
+For questions or collaboration: [@DanielyanEduard](https://github.com/DanielyanEduard)
