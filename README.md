@@ -234,10 +234,6 @@ For each country-year observation (year X):
 - **Train/Test Split**: 80/20 (240 train, 61 test)
 - **Metrics**: R², MAE, MSE
 
-### Post-Soviet Countries (15 total)
-
-Russia, Ukraine, Belarus, Kazakhstan, Uzbekistan, Turkmenistan, Kyrgyzstan, Tajikistan, Georgia, Armenia, Azerbaijan, Moldova, Lithuania, Latvia, Estonia
-
 ---
 
 ## Dependencies
