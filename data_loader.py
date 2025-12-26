@@ -6,9 +6,13 @@ import pandas as pd
 import requests
 
 from config import (
+    ACADEMIC_FREEDOM_CSV_URL,
+    ACADEMIC_FREEDOM_METADATA_URL,
     EDUCATION_CSV_URL,
     EDUCATION_METADATA_URL,
     OWID_USER_AGENT,
+    POPULATION_CSV_URL,
+    POPULATION_METADATA_URL,
     RESEARCHERS_CSV_URL,
     RESEARCHERS_METADATA_URL,
     SPENDING_CSV_URL,
@@ -59,11 +63,27 @@ def load_education_data() -> Tuple[pd.DataFrame, Dict]:
     return df, metadata
 
 
+def load_academic_freedom_data() -> Tuple[pd.DataFrame, Dict]:
+    """Load academic freedom dataset and metadata."""
+
+    df = _read_csv(ACADEMIC_FREEDOM_CSV_URL)
+    metadata = _read_metadata(ACADEMIC_FREEDOM_METADATA_URL)
+    return df, metadata
+
+
+def load_population_data() -> Tuple[pd.DataFrame, Dict]:
+    """Load population dataset and metadata."""
+
+    df = _read_csv(POPULATION_CSV_URL)
+    metadata = _read_metadata(POPULATION_METADATA_URL)
+    return df, metadata
+
+
 def load_all_datasets():
     """
-    Convenience function to validate configuration and load all three datasets.
+    Convenience function to validate configuration and load all datasets.
     Returns:
-        researcher_df, spending_df, education_df
+        researcher_df, spending_df, education_df, academic_freedom_df, population_df
     """
 
     validate_config()
@@ -71,7 +91,9 @@ def load_all_datasets():
     researcher_df, _ = load_researcher_data()
     spending_df, _ = load_spending_data()
     education_df, _ = load_education_data()
+    academic_freedom_df, _ = load_academic_freedom_data()
+    population_df, _ = load_population_data()
 
-    return researcher_df, spending_df, education_df
+    return researcher_df, spending_df, education_df, academic_freedom_df, population_df
 
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -8,13 +8,17 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import KFold, train_test_split
 
 
-DEPENDENT_VARIABLE = "Researchers in R&D (per million people) in 2022"
-INDEPENDENT_VARIABLES = [
-    "Mean Researchers R&D (2017-2021)",
+# Feature names for augmented dataset
+FEATURE_NAMES = [
     "GDP per capita, PPP (constant 2021 international $)",
-    "Mean Research and development expenditure (% of GDP) (2018-2022)",
-    "Mean public spending on education as a share of GDP (historical and recent) (2018-2022)",
+    "Mean R&D Expenditure (% GDP)",
+    "Mean Education Spending (% GDP)",
+    "Academic Freedom Index",
+    "Population",
+    "Is Post-Soviet",
 ]
+
+TARGET_NAME = "Researchers per Million"
 
 
 @dataclass
@@ -22,18 +26,19 @@ class Metrics:
     r2: float
     mae: float
     mse: float
+    n_samples: int = 0
 
 
 def build_features_and_target(merged_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
-    X = merged_df[INDEPENDENT_VARIABLES]
-    y = merged_df[DEPENDENT_VARIABLE]
+    """Build features and target from augmented dataset."""
+    X = merged_df[FEATURE_NAMES]
+    y = merged_df[TARGET_NAME]
     return X, y
 
 
 def fit_full_model(merged_df: pd.DataFrame) -> Tuple[LinearRegression, Metrics]:
     """
-    Fit a linear regression model on the full dataset,
-    mirroring the initial notebook fit.
+    Fit a linear regression model on the full augmented dataset.
     """
 
     X, y = build_features_and_target(merged_df)
@@ -45,6 +50,7 @@ def fit_full_model(merged_df: pd.DataFrame) -> Tuple[LinearRegression, Metrics]:
         r2=r2_score(y, y_pred),
         mae=mean_absolute_error(y, y_pred),
         mse=mean_squared_error(y, y_pred),
+        n_samples=len(X),
     )
 
     return model, metrics
@@ -56,7 +62,7 @@ def train_test_split_data(
     random_state: int = 42,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Create train/test split as in the notebook.
+    Create train/test split from augmented dataset.
     """
 
     X, y = build_features_and_target(merged_df)
@@ -110,8 +116,7 @@ def evaluate_on_test_set(
     y_test: pd.Series,
 ) -> Metrics:
     """
-    Train a final model on the training set and evaluate on the test set,
-    mirroring the notebook's held-out evaluation.
+    Train a final model on the training set and evaluate on the test set.
     """
 
     model_final = LinearRegression()
@@ -123,6 +128,7 @@ def evaluate_on_test_set(
         r2=r2_score(y_test, y_pred_test),
         mae=mean_absolute_error(y_test, y_pred_test),
         mse=mean_squared_error(y_test, y_pred_test),
+        n_samples=len(X_test),
     )
 
 

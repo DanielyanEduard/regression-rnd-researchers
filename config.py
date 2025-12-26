@@ -9,7 +9,11 @@ BASE_DIR = Path(__file__).resolve().parent
 # Load environment variables from .env if present
 env_path = BASE_DIR / ".env"
 if env_path.exists():
-    load_dotenv(env_path)
+    try:
+        load_dotenv(env_path)
+    except (PermissionError, OSError):
+        # If .env file can't be read, continue with defaults
+        pass
 
 
 RESEARCHERS_CSV_URL = os.getenv("RESEARCHERS_CSV_URL")
@@ -20,6 +24,24 @@ SPENDING_METADATA_URL = os.getenv("SPENDING_METADATA_URL")
 
 EDUCATION_CSV_URL = os.getenv("EDUCATION_CSV_URL")
 EDUCATION_METADATA_URL = os.getenv("EDUCATION_METADATA_URL")
+
+ACADEMIC_FREEDOM_CSV_URL = os.getenv(
+    "ACADEMIC_FREEDOM_CSV_URL",
+    "https://ourworldindata.org/grapher/academic-freedom-index.csv?v=1&csvType=full&useColumnShortNames=false"
+)
+ACADEMIC_FREEDOM_METADATA_URL = os.getenv(
+    "ACADEMIC_FREEDOM_METADATA_URL",
+    "https://ourworldindata.org/grapher/academic-freedom-index.metadata.json?v=1&csvType=full&useColumnShortNames=false"
+)
+
+POPULATION_CSV_URL = os.getenv(
+    "POPULATION_CSV_URL",
+    "https://ourworldindata.org/grapher/population-with-un-projections.csv?v=1&csvType=full&useColumnShortNames=false"
+)
+POPULATION_METADATA_URL = os.getenv(
+    "POPULATION_METADATA_URL",
+    "https://ourworldindata.org/grapher/population-with-un-projections.metadata.json?v=1&csvType=full&useColumnShortNames=false"
+)
 
 OWID_USER_AGENT = os.getenv("OWID_USER_AGENT", "Our World In Data data fetch/1.0")
 
