@@ -30,7 +30,6 @@ def prepare_researcher_features(
     """
     Prepare researcher features for a given target year.
     Only extract target year researchers per million + GDP per capita by Entity.
-    Note: Mean researchers feature has been removed as per requirement #1.
     """
 
     researcher_df = researcher_df[
